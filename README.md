@@ -1,4 +1,4 @@
-# p5-live-editorp5-live-editorp5-live-editor
+# p5-live-editor
 
 This extension let you code your p5js projects live in Visual Studio Code. There are other plugins that le you do the same but all have some troubles, so I decided to "merge" them in order to create a more useful editor for my classroom lessons.
 
@@ -29,9 +29,13 @@ If a JavaScript file is open, a p5-live-editor button appears in the status bar 
 
 ## Known Issues
 
-There are currently no known issues. If you find any issues, please feel free, to fill an issue on github [Github](https://github.com/pixelkind/p5canvas).
+There are currently no known issues. If you find any issues, please feel free, to fill an issue on github [Github](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/issues).
 
 ## Release Notes
+
+### 0.1.0
+
+- Fixed some typo
 
 ### 0.1.0
 

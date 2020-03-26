@@ -168,7 +168,7 @@ function updateCode(editor, websocket, outputChannel) {
     outputChannel.clear();
     currentPanel.webview.html = getWebviewContent(text);
   } else {
-    let message = "🙊 Errors:\n";
+    let message = "🛑 Errors:\n";
 
     let es6error = false;
     JSHINT.errors.forEach(element => {
@@ -177,11 +177,6 @@ function updateCode(editor, websocket, outputChannel) {
     outputChannel.clear();
     outputChannel.append(message);
   }
-  outputChannel.append("ciao");
-}
-
-function getWebviewContent_(code: String = ""): string {
-  return "CIAO";
 }
 
 function getWebviewContent(code: String = "") {
