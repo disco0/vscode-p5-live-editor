@@ -5,17 +5,73 @@
   "version": "0.1.1",
   "publisher": "andreapollini",
   "engines": {
-    "vscode": "^1.26.0"
+    "vscode": "^1.42.0"
   },
   "icon": "images/icon.png",
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:javascript"
+    "*"
   ],
   "main": "./out/src/extension",
-
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "p5-live-editor-projects",
+        "title": "P5",
+        "icon": "media/icon.svg"
+      }]
+    },
+    "views": {
+      "p5-live-editor-projects": [{
+        "id": "p5-projects-view",
+        "name": "P5.js Projects"
+      }]
+    },
+    "commands": [{
+        "command": "extension.showP5LiveEditorCanvas",
+        "title": "Open Preview",
+        "icon": {
+          "light": "media/icon.svg",
+          "dark": "media/icon.svg"
+        }
+      },
+      {
+        "command": "extension.createp5project",
+        "title": "New Project",
+        "icon": {
+          "light": "media/add.svg",
+          "dark": "media/add.svg"
+        }
+      },
+      {
+        "command": "extension.deleteProject",
+        "title": "New Project",
+        "icon": {
+          "light": "$(alert)",
+          "dark": "$(alert)"
+        }
+      }
+    ],
+    "menus": {
+      "view/title": [{
+          "command": "extension.showP5LiveEditorCanvas",
+          "when": "view == p5-projects-view",
+          "group": "navigation"
+        },
+        {
+          "command": "extension.createp5project",
+          "when": "view == p5-projects-view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [{
+        "command": "extension.deleteProject",
+        "when": "view == p5-projects-view"
+      }]
+    }
+  },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -watch -p ./",
@@ -31,16 +87,16 @@
   },
   "dependencies": {
     "@types/p5": "^0.9.0",
+    "jsdom": "^16.2.1",
     "jshint": "^2.11.0",
-    "recast": "^0.18.7",
-    "ws": "^6.2.1",
     "minimist": "^1.2.3",
-    "mkdirp": "1.0.3"
+    "mkdirp": "1.0.3",
+    "recast": "^0.18.7",
+    "ws": "^6.2.1"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/ProfAndreaPollini/vscode-p5-live-editor"
   }
-
 }
