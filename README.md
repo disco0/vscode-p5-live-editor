@@ -16,7 +16,7 @@ function draw() {
 }
 ```
 
-![VIDEO GUIDE](docs/video/video-p5-live-editor.mov)
+[![VIDEO GUIDE](images/presentazione-p5-live-editor.jpg)](https://youtu.be/y-4vhQOSbwY "Video Youtube")
 
 ## Features
 
