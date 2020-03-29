@@ -13,6 +13,7 @@ import { P5Project } from "./P5Project";
 import { configWebSocketServer } from "./Websocket";
 import { OnDidChangeTextDocument } from "./events/OnDidChangeTextDocument";
 import { OnDidChangeActiveTextEditor } from "./events/OnDidChangeActiveTextEditor";
+import { CLIENT_RENEG_LIMIT } from "tls";
 
 var websocket: WebSocketServer;
 var counter: number = 0;
@@ -29,14 +30,6 @@ const createStatusBarItem = () => {
   return statusBarItem;
 };
 
-const initTreeView = () => {
-  //console.log("initTreeView()");
-  const p5ProjectsProvider = new P5ProjectsProvider(vscode.workspace.rootPath);
-  vscode.window.registerTreeDataProvider(
-    "p5-projects-view",
-    p5ProjectsProvider
-  );
-};
 export function activate(context: vscode.ExtensionContext) {
   //console.log("activate(", context, ")");
   const p5ProjectsProvider = new P5ProjectsProvider(vscode.workspace.rootPath);
@@ -44,17 +37,35 @@ export function activate(context: vscode.ExtensionContext) {
     "p5-projects-view",
     p5ProjectsProvider
   );
+  /*const view = vscode.window.createTreeView("p5-projects-view", {
+    treeDataProvider: p5ProjectsProvider,
+    showCollapseAll: true
+  });
+  p5ProjectsProvider.treeview = view;*/
+
+  vscode.commands.registerCommand(
+    "extension.reveal",
+    async (project: P5Project) => {
+      //console.log("cmd: extension.reveal -> ", project);
+      //await view.reveal(project, { focus: true, select: true, expand: true });
+      //console.log("refresh");
+    }
+  );
 
   vscode.commands.registerCommand("extension.refreshEntry", () => {
     p5ProjectsProvider.refresh();
+
     //console.log("refresh");
   });
 
   vscode.commands.registerCommand(
     "extension.selectProject",
-    (project: P5Project) => {
+    async (project: P5Project) => {
+      console.log("CMD: extension.selectProject", project);
       selectedProject = project;
       statusBarItem.text = `p5-live-editor: ${selectedProject.name}`;
+      let uri = vscode.Uri.file(project.projectPath);
+      await vscode.commands.executeCommand("vscode.openFolder", uri);
     }
   );
 
@@ -72,10 +83,16 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   let lastKnownEditor = vscode.window.activeTextEditor;
-  websocket = configWebSocketServer(outputChannel, lastKnownEditor)(
-    server,
-    updateCode
-  );
+  const websocket: WebSocketServer = new WebSocketServer(outputChannel);
+  websocket.onListening = () => {
+    server = websocket.url;
+  };
+  websocket.onConnection = () => {
+    outputChannel.show(true);
+    if (lastKnownEditor && lastKnownEditor.document) {
+      updateCode(lastKnownEditor, websocket, outputChannel);
+    }
+  };
 
   let changeTextDocument = OnDidChangeTextDocument(() => {
     let editor = vscode.window.activeTextEditor;
@@ -101,49 +118,63 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );*/
 
-  let didChangeActiveEditor = OnDidChangeActiveTextEditor(e => {
-    if (e && e.document && e.document.languageId == "javascript") {
-      statusBarItem.show();
-      let editor = vscode.window.activeTextEditor;
-      if (editor) {
-        lastKnownEditor = editor;
-        updateCode(lastKnownEditor, websocket, outputChannel);
-      }
-    } else {
-      statusBarItem.hide();
-    }
-    localPath = vscode.Uri.file(
-      path.dirname(vscode.window.activeTextEditor.document.uri.path)
+  if (lastKnownEditor) {
+    console.log(
+      "EDITOR -> ",
+      lastKnownEditor.document.uri,
+      lastKnownEditor.document
     );
+    p5ProjectsProvider.RevealIfIsProject(lastKnownEditor.document.uri);
+  }
 
-    let disposable = vscode.commands.registerCommand(
-      "extension.showP5LiveEditorCanvas",
-      () => {
-        if (currentPanel) {
-          currentPanel.reveal(vscode.ViewColumn.Two);
-        } else {
-          currentPanel = vscode.window.createWebviewPanel(
-            "p5-live-editor",
-            "p5-live-editor",
-            vscode.ViewColumn.Two,
-            {
-              enableScripts: true,
-              localResourceRoots: [extensionPath, localPath]
-            }
-          );
-          currentPanel.webview.html = getWebviewContent();
-          currentPanel.onDidDispose(
-            () => {
-              currentPanel = undefined;
-            },
-            undefined,
-            context.subscriptions
-          );
+  let didChangeActiveEditor = OnDidChangeActiveTextEditor(
+    (e: vscode.TextEditor) => {
+      if (e && e.document && e.document.languageId == "javascript") {
+        statusBarItem.show();
+        console.log("EDITOR -> ", e.document.uri, e.document);
+        p5ProjectsProvider.RevealIfIsProject(e.document.uri);
+
+        let editor = vscode.window.activeTextEditor;
+        if (editor) {
+          lastKnownEditor = editor;
+          updateCode(lastKnownEditor, websocket, outputChannel);
         }
+      } else {
+        statusBarItem.hide();
       }
-    );
-    context.subscriptions.push(disposable);
-  });
+      localPath = vscode.Uri.file(
+        path.dirname(vscode.window.activeTextEditor.document.uri.path)
+      );
+
+      let disposable = vscode.commands.registerCommand(
+        "extension.showP5LiveEditorCanvas",
+        () => {
+          if (currentPanel) {
+            currentPanel.reveal(vscode.ViewColumn.Two);
+          } else {
+            currentPanel = vscode.window.createWebviewPanel(
+              "p5-live-editor",
+              "p5-live-editor",
+              vscode.ViewColumn.Two,
+              {
+                enableScripts: true,
+                localResourceRoots: [extensionPath, localPath]
+              }
+            );
+            currentPanel.webview.html = getWebviewContent();
+            currentPanel.onDidDispose(
+              () => {
+                currentPanel = undefined;
+              },
+              undefined,
+              context.subscriptions
+            );
+          }
+        }
+      );
+      context.subscriptions.push(disposable);
+    }
+  );
 
   let extensionPath = vscode.Uri.file(
     vscode.extensions.getExtension("andreapollini.p5-live-editor").extensionPath
@@ -204,7 +235,7 @@ export function activate(context: vscode.ExtensionContext) {
         canSelectFolders: true,
         openLabel: "Open"
       };
-      vscode.window.showWarningMessage("CREATE NEW PROJECT");
+
       vscode.window.showOpenDialog(options).then(fileUri => {
         if (fileUri && fileUri[0]) {
           //console.log("Selected file: " + fileUri[0].fsPath);
@@ -321,7 +352,7 @@ function getWebviewContent(code: String = "") {
      
      
     
-      <style>
+     <!-- <style>
       html {
           height: 100%;
       }
@@ -343,7 +374,7 @@ function getWebviewContent(code: String = "") {
       canvas {
           display: block;
       }
-    </style>
+    </style>-->
     </head>
     <body >
       <div id="p5canvas"></div>
@@ -409,6 +440,9 @@ function getWebviewContent(code: String = "") {
   baseDocument.querySelector("head").innerHTML += domDocument.querySelector(
     "head"
   ).outerHTML;
+  baseDocument.querySelector("body").innerHTML =
+    domDocument.querySelector("body").outerHTML +
+    baseDocument.querySelector("body").innerHTML;
 
   return baseDOM.window.document.documentElement.outerHTML;
 }

@@ -33,7 +33,11 @@ There are currently no known issues. If you find any issues, please feel free, t
 
 ## Release Notes
 
-### 0.1.0
+### 0.2.0
+
+- added project management
+
+### 0.1.1
 
 - Fixed some typo
 
@@ -48,3 +52,4 @@ This Library is licensed under the MIT License. Please refer to the `LICENSE.txt
 ## Plugin I've taken code from
 
 I try to merge the feature of two great plugins: https://github.com/filipesabella/vscode-live-p5 and many of the code is taken from https://github.com/pixelkind/p5canvas (I forked this repo)
+Icons from: https://github.com/tabler/tabler-icons

@@ -24,13 +24,16 @@ export class P5ProjectsProvider implements vscode.TreeDataProvider<P5Project> {
   }
 
   getTreeItem(element: P5Project): vscode.TreeItem | Thenable<vscode.TreeItem> {
-    //console.log("getTreeItem ", element);
-
-    return new P5ProjectItem(element, TreeItemCollapsibleState.Collapsed);
+    console.log("getTreeItem ", element);
+    if (element) {
+      const el = new P5ProjectItem(element, TreeItemCollapsibleState.None);
+      console.log("ITEM -> ", el);
+      return el;
+    }
   }
 
   getChildren(element?: P5Project): Thenable<P5Project[]> {
-    //console.log("getChildren of ", element);
+    console.log("getChildren of ", element);
     if (element) {
       let uri = vscode.Uri.file(element.projectPath);
       vscode.commands.executeCommand("vscode.openFolder", uri);
@@ -50,7 +53,22 @@ export class P5ProjectsProvider implements vscode.TreeDataProvider<P5Project> {
     }
   }
   getParent?(element: P5Project): Thenable<P5Project> {
-    //console.log("getParent ", element);
-    throw new Error("Method not implemented.");
+    console.log("getParent ", element);
+    //   //throw new Error("Method not implemented.");
+    return Promise.resolve(undefined);
+  }
+
+  RevealIfIsProject(uri: vscode.Uri): void {
+    /*let project = this.projects.find(p => uri.fsPath.includes(p.projectPath));
+    console.log("FOUND for [", uri.fsPath, "] => ", project.projectPath);
+    if (project) {
+      this.selected = project;
+      vscode.commands.executeCommand("extension.reveal", project);
+      this.treeview.reveal(project, {
+        focus: false,
+        select: true,
+        expand: false
+      });
+    }*/
   }
 }

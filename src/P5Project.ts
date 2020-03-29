@@ -35,6 +35,7 @@ export class P5ProjectItem extends TreeItem {
     public readonly collapsibleState: TreeItemCollapsibleState
   ) {
     super(project.name, collapsibleState);
+    this.label = project.name;
   }
   get tooltip(): string {
     return `${this.project.name}`;
