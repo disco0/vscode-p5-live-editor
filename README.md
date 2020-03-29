@@ -16,6 +16,8 @@ function draw() {
 }
 ```
 
+![VIDEO GUIDE](docs/video/video-p5-live-editor.mov)
+
 ## Features
 
 - Start as simple as a single sketch.js file
