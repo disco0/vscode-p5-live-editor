@@ -39,6 +39,12 @@ There are currently no known issues. If you find any issues, please feel free, t
 
 ## Release Notes
 
+## 0.3.1
+
+### Fixed
+
+- Fixed bug in opening condition
+
 ### 0.3.0
 
 #### Changed
