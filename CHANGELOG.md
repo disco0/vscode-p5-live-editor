@@ -4,6 +4,20 @@ All notable changes to the "p5-live-editor" extension will be documented in this
 
 ## [Unreleased](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/compare/0.1.1...HEAD)
 
+## [0.3.0](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.3.0) - 2020-03-31
+
+### Changed
+
+- Now you can open the p5 live editor preview clicking on the p5-livee-editor button in the status bar.
+
+### Fixed
+
+- Now You can open the preview panel only if in the current files there are a index.html and a sketch.js file.
+
+### Removed
+
+- Removed the open preview button from the navigation panel in the treeview.
+
 ## [0.2.0](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.2.0) - 2020-03-29
 
 ### changed
@@ -14,7 +28,6 @@ All notable changes to the "p5-live-editor" extension will be documented in this
 
 - p5 project manager sidebar
 - p5 project skeleton creation
-
 
 ## [0.1.1](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.1.1) - 2020-03-26
 

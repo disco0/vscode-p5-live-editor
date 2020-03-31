@@ -31,7 +31,7 @@ const createStatusBarItem = () => {
 };
 
 export function activate(context: vscode.ExtensionContext) {
-  //console.log("activate(", context, ")");
+  ////console.log("activate(", context, ")");
   const p5ProjectsProvider = new P5ProjectsProvider(vscode.workspace.rootPath);
   vscode.window.registerTreeDataProvider(
     "p5-projects-view",
@@ -46,24 +46,25 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand(
     "extension.reveal",
     async (project: P5Project) => {
-      //console.log("cmd: extension.reveal -> ", project);
+      ////console.log("cmd: extension.reveal -> ", project);
       //await view.reveal(project, { focus: true, select: true, expand: true });
-      //console.log("refresh");
+      ////console.log("refresh");
     }
   );
 
   vscode.commands.registerCommand("extension.refreshEntry", () => {
     p5ProjectsProvider.refresh();
 
-    //console.log("refresh");
+    ////console.log("refresh");
   });
 
   vscode.commands.registerCommand(
     "extension.selectProject",
     async (project: P5Project) => {
-      console.log("CMD: extension.selectProject", project);
+      //console.log("CMD: extension.selectProject", project);
       selectedProject = project;
-      statusBarItem.text = `p5-live-editor: ${selectedProject.name}`;
+      statusBarItem.text = `p5-live-editor`;
+      statusBarItem.tooltip = "Open Preview";
       let uri = vscode.Uri.file(project.projectPath);
       await vscode.commands.executeCommand("vscode.openFolder", uri);
     }
@@ -78,7 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.commands.registerCommand("extension.deleteProject", evt => {
     vscode.window.showInformationMessage("DELETE");
-    //console.log("DELETE", evt);
+    ////console.log("DELETE", evt);
     DeleteP5Project(evt);
   });
 
@@ -119,11 +120,11 @@ export function activate(context: vscode.ExtensionContext) {
   );*/
 
   if (lastKnownEditor) {
-    console.log(
-      "EDITOR -> ",
-      lastKnownEditor.document.uri,
-      lastKnownEditor.document
-    );
+    //console.log(
+    //   "EDITOR -> ",
+    //   lastKnownEditor.document.uri,
+    //   lastKnownEditor.document
+    // );
     p5ProjectsProvider.RevealIfIsProject(lastKnownEditor.document.uri);
   }
 
@@ -131,7 +132,7 @@ export function activate(context: vscode.ExtensionContext) {
     (e: vscode.TextEditor) => {
       if (e && e.document && e.document.languageId == "javascript") {
         statusBarItem.show();
-        console.log("EDITOR -> ", e.document.uri, e.document);
+        //console.log("EDITOR -> ", e.document.uri, e.document);
         p5ProjectsProvider.RevealIfIsProject(e.document.uri);
 
         let editor = vscode.window.activeTextEditor;
@@ -139,47 +140,60 @@ export function activate(context: vscode.ExtensionContext) {
           lastKnownEditor = editor;
           updateCode(lastKnownEditor, websocket, outputChannel);
         }
+
+        localPath = vscode.Uri.file(path.dirname(e.document.uri.fsPath));
+        //console.log("PATH: ", localPath);
+
+        let disposable = vscode.commands.registerCommand(
+          "extension.showP5LiveEditorCanvas",
+          () => {
+            //console.log("PATH: ", localPath);
+            if (currentPanel) {
+              currentPanel.reveal(vscode.ViewColumn.Two);
+            } else {
+              const sketchPath =
+                path.dirname(e.document.uri.fsPath) + path.sep + "sketch.js";
+              const indexHTMLPath =
+                path.dirname(e.document.uri.fsPath) + path.sep + "index.html";
+              if (
+                !(fs.existsSync(sketchPath) && fs.existsSync(indexHTMLPath))
+              ) {
+                vscode.window.showErrorMessage(
+                  "This folder must contain index.html and sketch.js in order to open p5 live editor preview."
+                );
+                return;
+              }
+              currentPanel = vscode.window.createWebviewPanel(
+                "p5-live-editor",
+                "p5-live-editor",
+                vscode.ViewColumn.Two,
+                {
+                  enableScripts: true,
+                  localResourceRoots: [extensionPath, localPath]
+                }
+              );
+              currentPanel.webview.html = getWebviewContent();
+              currentPanel.onDidDispose(
+                () => {
+                  currentPanel = undefined;
+                },
+                undefined,
+                context.subscriptions
+              );
+            }
+          }
+        );
+        context.subscriptions.push(disposable);
       } else {
         statusBarItem.hide();
       }
-      localPath = vscode.Uri.file(
-        path.dirname(vscode.window.activeTextEditor.document.uri.path)
-      );
-
-      let disposable = vscode.commands.registerCommand(
-        "extension.showP5LiveEditorCanvas",
-        () => {
-          if (currentPanel) {
-            currentPanel.reveal(vscode.ViewColumn.Two);
-          } else {
-            currentPanel = vscode.window.createWebviewPanel(
-              "p5-live-editor",
-              "p5-live-editor",
-              vscode.ViewColumn.Two,
-              {
-                enableScripts: true,
-                localResourceRoots: [extensionPath, localPath]
-              }
-            );
-            currentPanel.webview.html = getWebviewContent();
-            currentPanel.onDidDispose(
-              () => {
-                currentPanel = undefined;
-              },
-              undefined,
-              context.subscriptions
-            );
-          }
-        }
-      );
-      context.subscriptions.push(disposable);
     }
   );
 
   let extensionPath = vscode.Uri.file(
     vscode.extensions.getExtension("andreapollini.p5-live-editor").extensionPath
   );
-  //console.log("EXT PATH = ", extensionPath);
+  ////console.log("EXT PATH = ", extensionPath);
   let folderPath = vscode.workspace.rootPath;
 
   let localPath = undefined;
@@ -238,7 +252,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       vscode.window.showOpenDialog(options).then(fileUri => {
         if (fileUri && fileUri[0]) {
-          //console.log("Selected file: " + fileUri[0].fsPath);
+          ////console.log("Selected file: " + fileUri[0].fsPath);
           const projectNameInputOptions: vscode.InputBoxOptions = {
             prompt: "New P5 project name",
             password: false
@@ -271,8 +285,11 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function updateCode(editor, websocket, outputChannel) {
+  if (!(currentPanel && currentPanel.webview)) {
+    return;
+  }
   if (!editor) {
-    console.log("Error: No document found");
+    //console.log("Error: No document found");
     return;
   }
   if (editor.document.languageId !== "javascript") {
@@ -322,10 +339,10 @@ function getWebviewContent(code: String = "") {
       "utf8"
     );
 
-    //console.log("SKETCH CONTENT = ", sketchCode);
+    ////console.log("SKETCH CONTENT = ", sketchCode);
 
     ParsedCode = parser.parseCode(sketchCode);
-    //console.log("PARSED CODE:", ParsedCode);
+    ////console.log("PARSED CODE:", ParsedCode);
     extenalJSCodeParsed = fs
       .readdirSync(localPath)
       .filter(filename => filename.split(".").pop() === "js")
@@ -416,24 +433,24 @@ function getWebviewContent(code: String = "") {
     </body>
   </html>
   `);
-  //console.log("HTML -> ", baseDOM.window.document.documentElement.outerHTML);
+  ////console.log("HTML -> ", baseDOM.window.document.documentElement.outerHTML);
 
   const baseDocument = baseDOM.window.document;
   const domDocument = dom.window.document;
 
   domDocument.querySelectorAll("head > script").forEach(element => {
-    //console.log("el -> ", element.src);
+    ////console.log("el -> ", element.src);
     if (element.src.endsWith("sketch.js")) {
       element.remove();
-      //console.log("remove.");
+      ////console.log("remove.");
     }
   });
 
   domDocument.querySelectorAll("body > script").forEach(element => {
-    //console.log("el -> ", element.src);
+    ////console.log("el -> ", element.src);
     if (element.src.endsWith("sketch.js")) {
       element.remove();
-      //console.log("remove.");
+      ////console.log("remove.");
     }
   });
 

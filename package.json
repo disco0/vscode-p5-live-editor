@@ -2,7 +2,7 @@
   "name": "p5-live-editor",
   "displayName": "p5js live editor",
   "description": "Live preview for p5js projects",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "andreapollini",
   "engines": {
     "vscode": "^1.42.0"
@@ -12,7 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onLanguage:javascript"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -20,7 +20,7 @@
       "activitybar": [{
         "id": "p5-live-editor-projects",
         "title": "P5",
-        "icon": "media/icon.svg"
+        "icon": "media/main_icon_e_dark.svg"
       }]
     },
     "views": {
@@ -64,21 +64,15 @@
     ],
     "menus": {
       "view/title": [{
-          "command": "extension.showP5LiveEditorCanvas",
-          "when": "view == p5-projects-view",
-          "group": "navigation"
-        },
-        {
-          "command": "extension.createp5project",
-          "when": "view == p5-projects-view",
-          "group": "navigation"
-        }
-      ],
+        "command": "extension.createp5project",
+        "when": "view == p5-projects-view",
+        "group": "navigation"
+      }],
       "view/item/context": [{
-        "command": "extension.deleteProject",
+        "command": "extension.selectProject",
         "when": "view == p5-projects-view"
       }, {
-        "command": "extension.selectProject",
+        "command": "extension.deleteProject",
         "when": "view == p5-projects-view"
       }]
     }

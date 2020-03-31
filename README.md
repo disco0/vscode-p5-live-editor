@@ -4,17 +4,21 @@ This extension let you code your p5js projects live in Visual Studio Code. There
 
 ![Example Screenshot](images/example_01.png)
 
-In order to use the plugin you must create a sketch.js file in your project folder. You can also use multiple .js files, the plugin will manage them automatically.
+In order to use the plugin you must have a sketch.js and a index.html file in your project folder. You can also use multiple .js files, the plugin will manage them automatically.
 
-```javascript
-function setup() {
-  createCanvas(400, 400);
-}
+![P5 live Editor Sidebar](images/sidebar.png)
 
-function draw() {
-  background(255);
-}
-```
+after clickgin on the sidebar icon, you can add a new project directly from the upper plus sign.
+
+![P5 live Editor - Add new project](images/treeview_add.png)
+
+If the current folder contains an index.html and a sketch.js, you can open the preview by clicking on the button in the status bar.
+
+![P5 live Editor - Open Preview](images/presentazione-p5-live-editor.jpg)
+
+## Project Management
+
+Starting from 0.2.0 version you can scaffold a new project directly from the p5 live editor sidebar. You can find it in the sidebar
 
 [![VIDEO GUIDE](images/presentazione-p5-live-editor.jpg)](https://youtu.be/y-4vhQOSbwY "Video Youtube")
 
@@ -34,6 +38,16 @@ If a JavaScript file is open, a p5-live-editor button appears in the status bar 
 There are currently no known issues. If you find any issues, please feel free, to fill an issue on github [Github](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/issues).
 
 ## Release Notes
+
+### 0.3.0
+
+#### Changed
+
+- Now you can open the p5 live editor preview clicking on the p5-livee-editor button in the status bar.
+
+#### Fixed
+
+- Now You can open the preview panel only if in the current files there are a index.html and a sketch.js file.
 
 ### 0.2.0
 
