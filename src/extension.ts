@@ -301,20 +301,25 @@ function updateCode(editor, websocket, outputChannel) {
   console.log("TXT = ", text);
   let options = {
     esversion: 6,
-    strict: "implied",
+    undef: true,
     browser: true,
-    node: true
+    node: true,
+    strict: "implied"
   };
   JSHINT(text, options);
-  //console.log(JSHINT.errors);
-  if (JSHINT.errors.length == 0) {
+  console.log(JSHINT.errors);
+  const errors = JSHINT.errors.filter(
+    error => !error.evidence.includes(error.a + "(")
+  );
+  console.log(errors);
+  if (errors.length == 0) {
     outputChannel.clear();
     currentPanel.webview.html = getWebviewContent(text);
   } else {
     let message = "🛑 Errors:\n";
 
     let es6error = false;
-    JSHINT.errors.forEach(element => {
+    errors.forEach(element => {
       message += `Line ${element.line}, col ${element.character}: ${element.reason}\n`;
     });
     outputChannel.clear();
