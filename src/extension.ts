@@ -298,11 +298,15 @@ function updateCode(editor, websocket, outputChannel) {
     return;
   }
   let text = editor.document.getText();
+  console.log("TXT = ", text);
   let options = {
-    esversion: 6
+    esversion: 6,
+    strict: "implied",
+    browser: true,
+    node: true
   };
   JSHINT(text, options);
-
+  //console.log(JSHINT.errors);
   if (JSHINT.errors.length == 0) {
     outputChannel.clear();
     currentPanel.webview.html = getWebviewContent(text);

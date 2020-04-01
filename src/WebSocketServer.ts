@@ -34,7 +34,7 @@ export class WebSocketServer {
         // Listening for incomming messages
         this.websocket.on("message", data => {
           let obj = JSON.parse(data);
-          //console.log("WS MSG:", obj);
+          console.log("WS MSG:", obj);
           if (obj.type == "log") {
             switch (obj.logType) {
               case "warn":
