@@ -2,7 +2,13 @@
 
 All notable changes to the "p5-live-editor" extension will be documented in this file.
 
-## [Unreleased](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/compare/0.4.0...HEAD)
+## [Unreleased](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/compare/0.4.1...HEAD)
+
+## [0.4.0](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.4.1) - 2020-04-01
+
+### Fixed
+
+- errors in strict mode (functions not defined) fixed.
 
 ## [0.4.0](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.4.0) - 2020-04-01
 

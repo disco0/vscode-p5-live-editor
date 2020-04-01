@@ -41,6 +41,12 @@ There are currently no known issues. If you find any issues, please feel free, t
 
 ## Release Notes
 
+## 0.4.1
+
+### Fixed
+
+- errors in strict mode (functions not defined) fixed.
+
 ## 0.4.0
 
 ### Added
