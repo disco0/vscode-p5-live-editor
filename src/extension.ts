@@ -299,6 +299,17 @@ function updateCode(editor, websocket, outputChannel) {
   }
   let text = editor.document.getText();
   console.log("TXT = ", text);
+  const JSHINTOptionsPath =
+    vscode.extensions.getExtension("andreapollini.p5-live-editor")
+      .extensionPath +
+    path.sep +
+    "assets" +
+    path.sep +
+    "jshint.json";
+  const JSHINTOptions = JSON.parse(
+    fs.readFileSync(JSHINTOptionsPath).toString()
+  );
+
   let options = {
     esversion: 6,
     undef: true,
@@ -306,7 +317,7 @@ function updateCode(editor, websocket, outputChannel) {
     node: true,
     strict: "implied"
   };
-  JSHINT(text, options);
+  JSHINT(text, JSHINTOptions);
   console.log(JSHINT.errors);
   const errors = JSHINT.errors.filter(
     error => !error.evidence.includes(error.a + "(")

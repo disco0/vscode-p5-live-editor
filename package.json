@@ -17,19 +17,24 @@
   "main": "./out/src/extension",
   "contributes": {
     "viewsContainers": {
-      "activitybar": [{
-        "id": "p5-live-editor-projects",
-        "title": "P5",
-        "icon": "media/main_icon_e_dark.svg"
-      }]
+      "activitybar": [
+        {
+          "id": "p5-live-editor-projects",
+          "title": "P5",
+          "icon": "media/main_icon_e_dark.svg"
+        }
+      ]
     },
     "views": {
-      "p5-live-editor-projects": [{
-        "id": "p5-projects-view",
-        "name": "P5.js Projects"
-      }]
+      "p5-live-editor-projects": [
+        {
+          "id": "p5-projects-view",
+          "name": "P5.js Projects"
+        }
+      ]
     },
-    "commands": [{
+    "commands": [
+      {
         "command": "extension.showP5LiveEditorCanvas",
         "title": "Open Preview",
         "icon": {
@@ -63,18 +68,23 @@
       }
     ],
     "menus": {
-      "view/title": [{
-        "command": "extension.createp5project",
-        "when": "view == p5-projects-view",
-        "group": "navigation"
-      }],
-      "view/item/context": [{
-        "command": "extension.selectProject",
-        "when": "view == p5-projects-view"
-      }, {
-        "command": "extension.deleteProject",
-        "when": "view == p5-projects-view"
-      }]
+      "view/title": [
+        {
+          "command": "extension.createp5project",
+          "when": "view == p5-projects-view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "extension.selectProject",
+          "when": "view == p5-projects-view"
+        },
+        {
+          "command": "extension.deleteProject",
+          "when": "view == p5-projects-view"
+        }
+      ]
     }
   },
   "scripts": {
@@ -86,9 +96,13 @@
   "devDependencies": {
     "@types/mocha": "^2.2.48",
     "@types/node": "^6.14.7",
+    "file-loader": "^6.0.0",
     "mocha": "^7.1.1",
+    "ts-loader": "^6.2.2",
     "typescript": "3.8.3",
-    "vscode": "1.1.36"
+    "vscode": "1.1.36",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "@types/p5": "^0.9.0",
