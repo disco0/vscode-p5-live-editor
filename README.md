@@ -41,25 +41,31 @@ There are currently no known issues. If you find any issues, please feel free, t
 
 ## Release Notes
 
-## 0.4.1
+### 0.5.0
 
-### Fixed
+#### Fixed
+
+- added gloabals to jshint in order to use p5js global variables.
+
+### 0.4.1
+
+#### Fixed
 
 - errors in strict mode (functions not defined) fixed.
 
-## 0.4.0
+### 0.4.0
 
-### Added
+#### Added
 
 - console.log messages appears in the output panel
 
-### Changed
+#### Changed
 
 - Javascript files must follow strict mode (enabled in order to get all the errors in the output panel in the correct way)
 
-## 0.3.1
+### 0.3.1
 
-### Fixed
+#### Fixed
 
 - Fixed bug in opening condition
 

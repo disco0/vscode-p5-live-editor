@@ -2,9 +2,15 @@
 
 All notable changes to the "p5-live-editor" extension will be documented in this file.
 
-## [Unreleased](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/compare/0.4.1...HEAD)
+## [Unreleased](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/compare/0.5.0...HEAD)
 
-## [0.4.0](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.4.1) - 2020-04-01
+## [0.5.0](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.5.0) - 2020-04-01
+
+### Fixed
+
+- added gloabals to jshint in order to use p5js global variables.
+
+## [0.4.1](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.4.1) - 2020-04-01
 
 ### Fixed
 
