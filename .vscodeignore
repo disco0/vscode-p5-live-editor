@@ -10,3 +10,4 @@ vsc-extension-quickstart.md
 **/*.xcf
 *.vsix
 **/*.mov
+docs/video/**

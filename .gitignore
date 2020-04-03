@@ -5,3 +5,5 @@ node_modules
 **/*.xcf
 *.vsix
 **/*.mov
+test/**
+docs/**

@@ -10,6 +10,8 @@
 	"undef": true,
 	"unused": false,
 	"globals": {
+		"addModule": true,
+		"p5": true,
 		"ADD": true,
 		"ALT": true,
 		"ARROW": true,

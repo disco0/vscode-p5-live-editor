@@ -5,6 +5,7 @@ import { WebSocketServer, ImageType } from "./WebSocketServer";
 import { JSHINT } from "jshint";
 import { JSDOM } from "jsdom";
 import * as path from "path";
+import fetch from "node-fetch";
 import * as fs from "fs";
 import * as parser from "./code-parser";
 import { P5ProjectsProvider } from "./P5ProjectsNodeProvider";
@@ -284,7 +285,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
-function updateCode(editor, websocket, outputChannel) {
+async function updateCode(editor, websocket, outputChannel) {
   if (!(currentPanel && currentPanel.webview)) {
     return;
   }
@@ -310,17 +311,80 @@ function updateCode(editor, websocket, outputChannel) {
     fs.readFileSync(JSHINTOptionsPath).toString()
   );
 
+  // get included libs symbols included? I hope!
+  let localPath = vscode.Uri.file(
+    path.dirname(editor.document.uri.path) + path.sep
+  ).with({
+    scheme: "vscode-resource"
+  }).fsPath;
+  const dom = new JSDOM(fs.readFileSync(`${localPath + path.sep}index.html`));
+  let extenalJSCodeParsed = "";
+  let externalFiles = [];
+  dom.window.document.querySelectorAll("script").forEach(x => {
+    //console.log(x.getAttribute("src"));
+    externalFiles.push(x.getAttribute("src"));
+  });
+  //externalFiles.filter(x => x !== "sketch.js");
+
+  //console.log("FILES: ", externalFiles);
+  const remoteExternalFiles =
+    (await Promise.all(
+      externalFiles
+        .filter(x => x.startsWith("http"))
+        .map(uri => fetch(uri).then(r => r.text()))
+    ).then(results => {
+      // console.log(
+      //   "EXTERNAL FILES: ",
+      //   results.map(x => x.slice(0, 80))
+      // );
+      return results.reduce((acc, v) => acc + "\n" + v, "");
+    })) || "";
+
+  const localExternalFiles =
+    externalFiles
+      .filter(x => !x.startsWith("http"))
+      .map(x => fs.readFileSync(path.join(localPath, x)))
+      .reduce((acc, v) => acc + "\n" + v, "") || "";
+  //console.log("EXTERNAL FILES: ", localExternalFiles);
+  //console.log("FILES: ", externalFiles);
+  extenalJSCodeParsed = fs
+    .readdirSync(localPath)
+    .filter(filename => filename.split(".").pop() === "js")
+    .filter(filename => filename !== "sketch.js")
+    .map(f => fs.readFileSync(localPath + path.sep + f, "utf8"))
+    .reduce((program, code) => program + "\n" + code, "");
+
+  // get included symbols
+
   let options = {
     esversion: 6,
     undef: true,
     browser: true,
     node: true,
-    strict: "implied"
+    //strict: "implied",
+    "-W033": true,
+    "-E058": true,
+    "-E030": true,
+    "-W008": true,
+    "-E043": true
   };
-  JSHINT(text, JSHINTOptions);
-  console.log(JSHINT.errors);
-  const errors = JSHINT.errors.filter(
-    error => !error.evidence.includes(error.a + "(")
+
+  const headers =
+    "\n/* jshint ignore:start */\n" +
+    `
+  ${remoteExternalFiles}
+  ${localExternalFiles}
+ \n` +
+    "\n/* jshint ignore:end */\n";
+
+  const offset = headers.split(/\r\n|\r|\n/).length;
+
+  JSHINT(headers + text, JSHINTOptions);
+  let errors = JSHINT.errors;
+  //console.log("JSHINT ERRORS: ", errors);
+  errors = JSHINT.errors.filter(
+    error =>
+      !(error && error.evidence && error.evidence.includes(error.a + "("))
   );
   console.log(errors);
   if (errors.length == 0) {
@@ -331,7 +395,9 @@ function updateCode(editor, websocket, outputChannel) {
 
     let es6error = false;
     errors.forEach(element => {
-      message += `Line ${element.line}, col ${element.character}: ${element.reason}\n`;
+      message += `Line ${element.line - offset + 1}, col ${
+        element.character
+      }: ${element.reason}\n`;
     });
     outputChannel.clear();
     outputChannel.append(message);
