@@ -2,14 +2,14 @@ let logs = [];
 let socket;
 
 function connectWebsocket(server) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     socket = new WebSocket(server);
-    socket.onerror = error => {
+    socket.onerror = (error) => {
       console.log(error);
       reject(error);
     };
 
-    socket.onopen = event => {
+    socket.onopen = (event) => {
       for (index in logs) {
         sendLog(logs[index].msg, logs[index].type);
       }
@@ -17,7 +17,7 @@ function connectWebsocket(server) {
       resolve(socket);
     };
 
-    socket.onmessage = event => {
+    socket.onmessage = (event) => {
       let obj = JSON.parse(event.data);
       if (obj.type === "imageRequest") {
         let canvas = document.getElementById("p5canvas").firstChild;
@@ -26,15 +26,15 @@ function connectWebsocket(server) {
           JSON.stringify({
             type: "imageData",
             mimeType: "png",
-            data: data
+            data: data,
           })
         );
       }
     };
-    server.onopen = function() {
+    server.onopen = function () {
       resolve(server);
     };
-    server.onerror = function(err) {
+    server.onerror = function (err) {
       console.err(error);
       reject(err);
     };
@@ -78,6 +78,7 @@ async function setupWebsocket(server) {
 
 function addLog(msg, type) {
   msg = msg.join(" ");
+
   if (typeof msg === "object") {
     msg = JSON.stringify(JSON.parse(JSON.stringify(msg)));
     //msg = JSON.stringify(msg, null, 4);
@@ -90,7 +91,7 @@ function addLog(msg, type) {
   }
 }
 
-window.console.log = function() {
+window.console.log = function () {
   msg = [];
   for (let i = 0; i < arguments.length; i++) {
     if (typeof arguments[i] === "object") {
@@ -99,10 +100,10 @@ window.console.log = function() {
   }
   addLog(msg, "log");
 };
-window.console.debug = msg => {
+window.console.debug = (msg) => {
   addLog(msg, "debug");
 };
-window.console.error = msg => {
+window.console.error = (msg) => {
   msg = [];
   for (let i = 0; i < arguments.length; i++) {
     if (typeof arguments[i] === "object") {
@@ -111,13 +112,13 @@ window.console.error = msg => {
   }
   addLog(msg, "error");
 };
-window.console.info = msg => {
+window.console.info = (msg) => {
   addLog(msg, "info");
 };
-window.console.trace = msg => {
+window.console.trace = (msg) => {
   addLog(msg, "trace");
 };
-window.console.warn = msg => {
+window.console.warn = (msg) => {
   addLog(msg, "warn");
 };
 
@@ -126,7 +127,7 @@ function sendLog(msg, type) {
     JSON.stringify({
       type: "log",
       msg: msg,
-      logType: type
+      logType: type,
     })
   );
 }

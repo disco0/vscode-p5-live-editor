@@ -5,7 +5,7 @@ import * as WebSocket from "ws";
 import * as fs from "fs";
 
 export enum ImageType {
-  png = "png"
+  png = "png",
 }
 
 export class WebSocketServer {
@@ -27,15 +27,16 @@ export class WebSocketServer {
       this.onListening();
 
       // Listening for open connection
-      this.socket.on("connection", websocket => {
+      this.socket.on("connection", (websocket) => {
         this.websocket = websocket;
         this.onConnection();
 
         // Listening for incomming messages
-        this.websocket.on("message", data => {
+        this.websocket.on("message", (data) => {
           let obj = JSON.parse(data);
-          console.log("WS MSG:", obj);
+
           if (obj.type == "log") {
+            console.log("WS log:", obj, " on ", this.channel.name);
             switch (obj.logType) {
               case "warn":
                 this.channel.appendLine("⚠️: " + obj.msg);
@@ -61,13 +62,13 @@ export class WebSocketServer {
               let imageData = obj.data.replace(/^data:image\/png;base64,/, "");
               let options = {
                 filters: {
-                  Images: ["png"]
-                }
+                  Images: ["png"],
+                },
               };
-              vscode.window.showSaveDialog(options).then(result => {
+              vscode.window.showSaveDialog(options).then((result) => {
                 if (result) {
                   let path = result.fsPath;
-                  fs.writeFile(path, imageData, "base64", err => {
+                  fs.writeFile(path, imageData, "base64", (err) => {
                     if (err) {
                       vscode.window.showErrorMessage(
                         "Error saving the file: " + err
@@ -95,7 +96,7 @@ export class WebSocketServer {
       this.websocket.send(
         JSON.stringify({
           type: "imageRequest",
-          mimeType: type.toString()
+          mimeType: type.toString(),
         })
       );
     }

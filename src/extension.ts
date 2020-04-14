@@ -33,16 +33,12 @@ const createStatusBarItem = () => {
 
 export function activate(context: vscode.ExtensionContext) {
   ////console.log("activate(", context, ")");
-  const p5ProjectsProvider = new P5ProjectsProvider(vscode.workspace.rootPath);
+  /* const p5ProjectsProvider = new P5ProjectsProvider(vscode.workspace.rootPath);
   vscode.window.registerTreeDataProvider(
     "p5-projects-view",
     p5ProjectsProvider
   );
-  /*const view = vscode.window.createTreeView("p5-projects-view", {
-    treeDataProvider: p5ProjectsProvider,
-    showCollapseAll: true
-  });
-  p5ProjectsProvider.treeview = view;*/
+  
 
   vscode.commands.registerCommand(
     "extension.reveal",
@@ -69,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
       let uri = vscode.Uri.file(project.projectPath);
       await vscode.commands.executeCommand("vscode.openFolder", uri);
     }
-  );
+  );*/
 
   let statusBarItem = createStatusBarItem();
   statusBarItem.show();
@@ -78,7 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
     "p5-live-editor Console"
   );
 
-  vscode.commands.registerCommand("extension.deleteProject", evt => {
+  vscode.commands.registerCommand("extension.deleteProject", (evt) => {
     vscode.window.showInformationMessage("DELETE");
     ////console.log("DELETE", evt);
     DeleteP5Project(evt);
@@ -102,39 +98,19 @@ export function activate(context: vscode.ExtensionContext) {
       lastKnownEditor = editor;
       updateCode(lastKnownEditor, websocket, outputChannel);
     }
-  }); /*vscode.workspace.onDidChangeTextDocument(
-    (e: vscode.TextDocumentChangeEvent) => {
-      if (
-        e &&
-        e.document &&
-        vscode.window.activeTextEditor != undefined &&
-        e.document === vscode.window.activeTextEditor.document &&
-        e.document.languageId == "javascript"
-      ) {
-        let editor = vscode.window.activeTextEditor;
-        if (editor) {
-          lastKnownEditor = editor;
-          updateCode(lastKnownEditor, websocket, outputChannel);
-        }
-      }
-    }
-  );*/
+  });
 
-  if (lastKnownEditor) {
-    //console.log(
-    //   "EDITOR -> ",
-    //   lastKnownEditor.document.uri,
-    //   lastKnownEditor.document
-    // );
+  /*if (lastKnownEditor) {
+   
     p5ProjectsProvider.RevealIfIsProject(lastKnownEditor.document.uri);
-  }
+  }*/
 
   let didChangeActiveEditor = OnDidChangeActiveTextEditor(
     (e: vscode.TextEditor) => {
       if (e && e.document && e.document.languageId == "javascript") {
         statusBarItem.show();
         //console.log("EDITOR -> ", e.document.uri, e.document);
-        p5ProjectsProvider.RevealIfIsProject(e.document.uri);
+        //p5ProjectsProvider.RevealIfIsProject(e.document.uri);
 
         let editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -170,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.ViewColumn.Two,
                 {
                   enableScripts: true,
-                  localResourceRoots: [extensionPath, localPath]
+                  localResourceRoots: [extensionPath, localPath],
                 }
               );
               currentPanel.webview.html = getWebviewContent();
@@ -216,7 +192,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.ViewColumn.Two,
             {
               enableScripts: true,
-              localResourceRoots: [extensionPath, localPath]
+              localResourceRoots: [extensionPath, localPath],
             }
           );
           currentPanel.webview.html = getWebviewContent();
@@ -248,20 +224,20 @@ export function activate(context: vscode.ExtensionContext) {
         canSelectMany: false,
         canSelectFiles: false,
         canSelectFolders: true,
-        openLabel: "Open"
+        openLabel: "Open",
       };
 
-      vscode.window.showOpenDialog(options).then(fileUri => {
+      vscode.window.showOpenDialog(options).then((fileUri) => {
         if (fileUri && fileUri[0]) {
           ////console.log("Selected file: " + fileUri[0].fsPath);
           const projectNameInputOptions: vscode.InputBoxOptions = {
             prompt: "New P5 project name",
-            password: false
+            password: false,
           };
           const projectFolder = fileUri[0].fsPath;
           vscode.window
             .showInputBox(projectNameInputOptions)
-            .then(projectName => {
+            .then((projectName) => {
               if (projectName) {
                 vscode.window.showInformationMessage(
                   "Creating project: " + projectName
@@ -285,6 +261,9 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
+let rnd = Math.random();
+let lastStateWasError = false;
+
 async function updateCode(editor, websocket, outputChannel) {
   if (!(currentPanel && currentPanel.webview)) {
     return;
@@ -294,12 +273,12 @@ async function updateCode(editor, websocket, outputChannel) {
     return;
   }
   if (editor.document.languageId !== "javascript") {
-    outputChannel.clear();
+    //outputChannel.clear();
     currentPanel.webview.html = getWebviewContent(editor.document.getText());
     return;
   }
   let text = editor.document.getText();
-  console.log("TXT = ", text);
+
   const JSHINTOptionsPath =
     vscode.extensions.getExtension("andreapollini.p5-live-editor")
       .extensionPath +
@@ -315,12 +294,12 @@ async function updateCode(editor, websocket, outputChannel) {
   let localPath = vscode.Uri.file(
     path.dirname(editor.document.uri.path) + path.sep
   ).with({
-    scheme: "vscode-resource"
+    scheme: "vscode-resource",
   }).fsPath;
   const dom = new JSDOM(fs.readFileSync(`${localPath + path.sep}index.html`));
   let extenalJSCodeParsed = "";
   let externalFiles = [];
-  dom.window.document.querySelectorAll("script").forEach(x => {
+  dom.window.document.querySelectorAll("script").forEach((x) => {
     //console.log(x.getAttribute("src"));
     externalFiles.push(x.getAttribute("src"));
   });
@@ -330,9 +309,9 @@ async function updateCode(editor, websocket, outputChannel) {
   const remoteExternalFiles =
     (await Promise.all(
       externalFiles
-        .filter(x => x.startsWith("http"))
-        .map(uri => fetch(uri).then(r => r.text()))
-    ).then(results => {
+        .filter((x) => x.startsWith("http"))
+        .map((uri) => fetch(uri).then((r) => r.text()))
+    ).then((results) => {
       // console.log(
       //   "EXTERNAL FILES: ",
       //   results.map(x => x.slice(0, 80))
@@ -342,16 +321,16 @@ async function updateCode(editor, websocket, outputChannel) {
 
   const localExternalFiles =
     externalFiles
-      .filter(x => !x.startsWith("http"))
-      .map(x => fs.readFileSync(path.join(localPath, x)))
+      .filter((x) => !x.startsWith("http"))
+      .map((x) => fs.readFileSync(path.join(localPath, x)))
       .reduce((acc, v) => acc + "\n" + v, "") || "";
   //console.log("EXTERNAL FILES: ", localExternalFiles);
   //console.log("FILES: ", externalFiles);
   extenalJSCodeParsed = fs
     .readdirSync(localPath)
-    .filter(filename => filename.split(".").pop() === "js")
-    .filter(filename => filename !== "sketch.js")
-    .map(f => fs.readFileSync(localPath + path.sep + f, "utf8"))
+    .filter((filename) => filename.split(".").pop() === "js")
+    .filter((filename) => filename !== "sketch.js")
+    .map((f) => fs.readFileSync(localPath + path.sep + f, "utf8"))
     .reduce((program, code) => program + "\n" + code, "");
 
   // get included symbols
@@ -366,7 +345,7 @@ async function updateCode(editor, websocket, outputChannel) {
     "-E058": true,
     "-E030": true,
     "-W008": true,
-    "-E043": true
+    "-E043": true,
   };
 
   const headers =
@@ -383,24 +362,33 @@ async function updateCode(editor, websocket, outputChannel) {
   let errors = JSHINT.errors;
   //console.log("JSHINT ERRORS: ", errors);
   errors = JSHINT.errors.filter(
-    error =>
+    (error) =>
       !(error && error.evidence && error.evidence.includes(error.a + "("))
   );
-  console.log(errors);
+  //console.log(errors);
   if (errors.length == 0) {
-    outputChannel.clear();
+    if (lastStateWasError) {
+      outputChannel.clear();
+      rnd = Math.random();
+      lastStateWasError = false;
+    }
+    //outputChannel.append("\n_______________________________________________\n");
     currentPanel.webview.html = getWebviewContent(text);
   } else {
     let message = "🛑 Errors:\n";
 
     let es6error = false;
-    errors.forEach(element => {
+    errors.forEach((element) => {
       message += `Line ${element.line - offset + 1}, col ${
         element.character
       }: ${element.reason}\n`;
     });
     outputChannel.clear();
+    //outputChannel.append("\n_______________________________________________\n");
     outputChannel.append(message);
+
+    currentPanel.webview.html = getWebviewContent(text);
+    lastStateWasError = true;
   }
 }
 
@@ -409,13 +397,18 @@ function getWebviewContent(code: String = "") {
   let extensionPath = vscode.Uri.file(
     vscode.extensions.getExtension("andreapollini.p5-live-editor").extensionPath
   ).with({
-    scheme: "vscode-resource"
+    scheme: "vscode-resource",
   });
 
+  let localPathForJS = vscode.Uri.file(
+    path.dirname(vscode.window.activeTextEditor.document.uri.path) + path.sep
+  ).with({
+    scheme: "vscode-resource",
+  });
   let localPath = vscode.Uri.file(
     path.dirname(vscode.window.activeTextEditor.document.uri.path) + path.sep
   ).with({
-    scheme: "vscode-resource"
+    scheme: "vscode-resource",
   }).fsPath;
   let ParsedCode = "";
   let extenalJSCodeParsed = "";
@@ -431,9 +424,9 @@ function getWebviewContent(code: String = "") {
     ////console.log("PARSED CODE:", ParsedCode);
     extenalJSCodeParsed = fs
       .readdirSync(localPath)
-      .filter(filename => filename.split(".").pop() === "js")
-      .filter(filename => filename !== "sketch.js")
-      .map(f => fs.readFileSync(localPath + path.sep + f, "utf8"))
+      .filter((filename) => filename.split(".").pop() === "js")
+      .filter((filename) => filename !== "sketch.js")
+      .map((f) => fs.readFileSync(localPath + path.sep + f, "utf8"))
       .reduce((program, code) => program + "\n" + code, "");
   }
 
@@ -452,7 +445,7 @@ function getWebviewContent(code: String = "") {
     <head>
      
       <script src="${extensionPath}/assets/websocketlog.js"></script>
-     
+
      
     
      <!-- <style>
@@ -482,7 +475,9 @@ function getWebviewContent(code: String = "") {
     <body >
       <div id="p5canvas"></div>
       <script>setupWebsocket("${server}");</script>
+     
       <script src="${extensionPath}/assets/p5setup.js"></script>
+      
       <script>
       ${extenalJSCodeParsed}
       </script>
@@ -495,8 +490,15 @@ function getWebviewContent(code: String = "") {
         var mousePressed, mouseReleased, mouseClicked, doubleClicked;
         var mouseDragged, mouseMoved, mouseWheel;
         var touchesStarted, touchesMoved, touchesEnded;
+        var loadJSON;
+        var loadImage;
+        var localPath;
+
         ${ParsedCode}
 
+        window.localPath = decodeURI("${localPathForJS}");
+        window.loadJSON = loadJSON;
+        window.loadImage = loadImage;
         window.preload = preload;
         window.draw = draw;
         window.keyPressed = keyPressed;
@@ -513,8 +515,8 @@ function getWebviewContent(code: String = "") {
         window.touchesMoved = touchesMoved;
         window.touchesEnded = touchesEnded;
 
-       
-      </script>
+       window.p5liveeditorrnd = ${rnd}; 
+     </script>
       
     </body>
   </html>
@@ -524,7 +526,7 @@ function getWebviewContent(code: String = "") {
   const baseDocument = baseDOM.window.document;
   const domDocument = dom.window.document;
 
-  domDocument.querySelectorAll("head > script").forEach(element => {
+  domDocument.querySelectorAll("head > script").forEach((element) => {
     ////console.log("el -> ", element.src);
     if (element.src.endsWith("sketch.js")) {
       element.remove();
@@ -532,7 +534,7 @@ function getWebviewContent(code: String = "") {
     }
   });
 
-  domDocument.querySelectorAll("body > script").forEach(element => {
+  domDocument.querySelectorAll("body > script").forEach((element) => {
     ////console.log("el -> ", element.src);
     if (element.src.endsWith("sketch.js")) {
       element.remove();

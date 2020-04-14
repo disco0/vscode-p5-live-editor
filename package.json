@@ -16,19 +16,7 @@
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [{
-        "id": "p5-live-editor-projects",
-        "title": "P5",
-        "icon": "media/main_icon_e_dark.svg"
-      }]
-    },
-    "views": {
-      "p5-live-editor-projects": [{
-        "id": "p5-projects-view",
-        "name": "P5.js Projects"
-      }]
-    },
+
     "commands": [{
         "command": "extension.showP5LiveEditorCanvas",
         "title": "Open Preview",
