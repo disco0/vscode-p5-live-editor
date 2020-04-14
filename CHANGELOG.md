@@ -2,7 +2,23 @@
 
 All notable changes to the "p5-live-editor" extension will be documented in this file.
 
-## [Unreleased](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/compare/0.5.1...HEAD)
+## [Unreleased](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/compare/0.6.0...HEAD)
+
+
+### Changed
+
+- better logging
+
+### Added
+
+- support for loadJSON
+- support for loadImage
+
+### Removed
+
+- Removed project management.
+
+## [0.5.1](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.6.0) - 2020-04-14
 
 ## [0.5.1](https://github.com/ProfAndreaPollini/vscode-p5-live-editor/releases/tag/0.5.1) - 2020-04-03
 
